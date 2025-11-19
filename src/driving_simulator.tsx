@@ -398,8 +398,8 @@ const DrivingSimulator = () => {
             notification = {
               id: notifId,
               type: 'text',
-              title: 'Sarah',
-              content: 'Hey! Are we still on for dinner tonight?',
+              title: 'John',
+              content: 'Hey! Do you want anything from the store? I\'m heading there in a bit',
               icon: '💬',
               timestamp: Date.now()
             };
