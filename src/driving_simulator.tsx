@@ -7,10 +7,11 @@ const AUTOPILOT_BLIND_DISTANCE = 1000; // Units before the finish where autopilo
 const TRACK_LENGTH = 6500; // Total distance from start to finish line in world units
 const AUTOPILOT_SPEED_UNITS = 1.6; // carVelocity units corresponding to autopilot max speed
 const AUTOPILOT_MAX_MPH = 120;
-const MANUAL_MAX_MPH = 75;
+// const MANUAL_MAX_MPH = 75; // REMOVED: Manual and autopilot now have same speed
 const CAR_UNITS_TO_MPH = AUTOPILOT_MAX_MPH / AUTOPILOT_SPEED_UNITS;
-const MANUAL_MAX_VELOCITY = MANUAL_MAX_MPH / CAR_UNITS_TO_MPH;
-const labelCondition = 'Autopilot';
+// const MANUAL_MAX_VELOCITY = MANUAL_MAX_MPH / CAR_UNITS_TO_MPH; // REMOVED: Manual uses same speed as autopilot
+const MANUAL_MAX_VELOCITY = AUTOPILOT_SPEED_UNITS; // Manual mode now uses same speed as autopilot
+const labelCondition = 'Lane Sense';
 
 // Notification timing (in seconds) - configurable
 const NOTIFICATION_1_TIME = 9;  // First notification at 8 seconds
@@ -675,16 +676,17 @@ const DrivingSimulator = () => {
         lastSecondLogged = elapsed;
       }
       
+      // REMOVED: Time-based score deduction - focus is on obstacle avoidance, not speed/time
       // Time-based score deduction: -5 points per second
-      const now = Date.now();
-      if (lastScoreDeduction === 0) {
-        lastScoreDeduction = now;
-      }
-      if (now - lastScoreDeduction >= 1000) {
-        scoreRef.current = Math.max(0, scoreRef.current - 5);
-        setScore(scoreRef.current);
-        lastScoreDeduction = now;
-      }
+      // const now = Date.now();
+      // if (lastScoreDeduction === 0) {
+      //   lastScoreDeduction = now;
+      // }
+      // if (now - lastScoreDeduction >= 1000) {
+      //   scoreRef.current = Math.max(0, scoreRef.current - 5);
+      //   setScore(scoreRef.current);
+      //   lastScoreDeduction = now;
+      // }
       
       // Completion is now handled by finish line crossing in animation loop
     }, 100);
@@ -1113,28 +1115,31 @@ const DrivingSimulator = () => {
           targetLane = lanes[currentLaneIndex];
           }
       } else {
-        // Manual control - car starts moving automatically, player can accelerate/decelerate
+        // Manual control - car moves at constant speed, player can only change lanes
         
         // Only allow movement after game starts
         if (gameStartedRef.current) {
-          // When switching from autopilot to manual, cap speed immediately
+          // When switching from autopilot to manual, maintain same speed (no speed change needed)
           if (wasAutopilot) {
-            carVelocity = Math.min(carVelocity, MANUAL_MAX_VELOCITY); // Cap to manual max (75 MPH)
+            // carVelocity = Math.min(carVelocity, MANUAL_MAX_VELOCITY); // REMOVED: No speed capping needed
             wasAutopilot = false;
           }
           
-          // Auto-accelerate in manual mode (car starts moving automatically)
+          // Maintain constant speed in manual mode (same as autopilot speed)
           if (carVelocity < MANUAL_MAX_VELOCITY) {
-            carVelocity = Math.min(carVelocity + 0.005 * 1.0, MANUAL_MAX_VELOCITY); // Fixed timestep: gradual acceleration to max 75 MPH
+            carVelocity = Math.min(carVelocity + 0.005 * 1.0, MANUAL_MAX_VELOCITY); // Fixed timestep: reach constant speed
           }
           
+          // REMOVED: Speed control - player can no longer accelerate/decelerate
           // Player can accelerate further with ArrowUp
-          if (keys.ArrowUp) {
-            carVelocity = Math.min(carVelocity + 0.008 * 1.0, MANUAL_MAX_VELOCITY); // Max 75 MPH (MANUAL_MAX_VELOCITY carVelocity)
-          }
-          if (keys.ArrowDown) {
-            carVelocity = Math.max(carVelocity - 0.025 * 1.0, 0);
-          }
+          // if (keys.ArrowUp) {
+          //   carVelocity = Math.min(carVelocity + 0.008 * 1.0, MANUAL_MAX_VELOCITY); // Max 75 MPH (MANUAL_MAX_VELOCITY carVelocity)
+          // }
+          // if (keys.ArrowDown) {
+          //   carVelocity = Math.max(carVelocity - 0.025 * 1.0, 0);
+          // }
+          
+          // Player can only change lanes (left/right)
           if (keys.ArrowLeft && currentLaneIndex > 0) {
             currentLaneIndex--;
             targetLane = lanes[currentLaneIndex];
@@ -1161,14 +1166,15 @@ const DrivingSimulator = () => {
       carGroup.position.x = carLaneOffset;
       carGroup.position.z -= carVelocity * 1.0; // Fixed timestep: carVelocity is already in units per 60fps frame
       
-      // Calculate speed in MPH (shared conversion factor for manual and autopilot)
+      // Calculate speed in MPH (manual and autopilot now have same speed)
       let speedMPH: number;
       if (autopilotRef.current) {
         speedMPH = Math.round(carVelocity * CAR_UNITS_TO_MPH);
         speedMPH = Math.min(AUTOPILOT_MAX_MPH, speedMPH);
       } else {
         speedMPH = Math.round(carVelocity * CAR_UNITS_TO_MPH);
-        speedMPH = Math.min(MANUAL_MAX_MPH, speedMPH);
+        // speedMPH = Math.min(MANUAL_MAX_MPH, speedMPH); // REMOVED: Manual uses same speed as autopilot
+        speedMPH = Math.min(AUTOPILOT_MAX_MPH, speedMPH); // Manual now uses same max speed as autopilot
       }
       setSpeed(speedMPH);
 
@@ -1553,26 +1559,24 @@ const DrivingSimulator = () => {
               fontSize: '16px',
               lineHeight: '1.6'
             }}>
-              <h1 style={{ fontSize: '32px', marginBottom: '20px', color: '#ffd700' }}>
+              <h1 style={{ fontSize: '32px', marginBottom: '12px', color: '#ffd700' }}>
                 🚗 AEON {labelCondition} Simulation 🚗
               </h1>
-              <p style={{ marginBottom: '18px' }}>
-                This is a driving simulation. Your goal is to reach the Finish Line and read all your smartphone notifications safely.
+              <p style={{ marginBottom: '10px' }}>
+                This is a driving simulation. Your goal is to reach the Finish Line and read all smartphone notifications safely.
               </p>
-              <p style={{ marginBottom: '18px' }}>
-                You start in <strong style={{ textDecoration: 'underline' }}>{labelCondition}</strong>. You can switch to manual mode using the "Return to Manual" button. In manual mode, you can navigate using the arrow keys (up, down, left, right). You can also switch back to <strong style={{ textDecoration: 'underline' }}>{labelCondition}</strong> mode from manual mode.
+              <p style={{ marginBottom: '10px' }}>
+                You start in <strong style={{ textDecoration: 'underline' }}>{labelCondition}</strong>. You can switch to manual mode using the "Return to Manual" button. In manual mode, you can change lanes using the left and right arrow keys. You can also switch back to <strong style={{ textDecoration: 'underline' }}>{labelCondition}</strong> mode from manual mode.
               </p>
-              <p style={{ marginBottom: '18px' }}>
+              <p style={{ marginBottom: '10px' }}>
                 You start with <strong style={{ color: '#44ff44' }}>1000</strong> points.
+                You lose <strong style={{ color: '#ff4444' }}>10 points</strong> per obstacle hit. Your goal is to avoid obstacles and reach the finish line while reading all your smartphone notifications.
               </p>
-              <p style={{ marginBottom: '18px' }}>
-                You lose <strong style={{ color: '#ff4444' }}>10 points</strong> per obstacle hit and <strong style={{ color: '#ff4444' }}>5 points</strong> per second that passes. Time will only stop passing once you reach the finish line AND you have read all your smartphone notifications.
-              </p>
-              <p style={{ marginBottom: '18px' }}>
+              <p style={{ marginBottom: '10px' }}>
                 Each time you receive a smartphone notification, it will appear at the bottom of your screen. You can open and read these notifications whenever you deem it safe. 
               </p>
-              <p style={{ marginBottom: '18px' }}> <strong>Important: after the simulation we will ask you questions about what you read in the notifications, so read each notification carefully so that you can remember what it says.</strong></p>
-              <p style={{ marginBottom: '10px' }}>
+              <p style={{ marginBottom: '10px' }}> <strong>Important: after the simulation we will ask you questions about what you read in the notifications, so read each notification carefully so that you can remember what it says.</strong></p>
+              <p style={{ marginBottom: '15px' }}>
                 To read a notification, click the icon, read the message, then close the message.
               </p>
               
@@ -1592,7 +1596,7 @@ const DrivingSimulator = () => {
                 onMouseOver={(e) => e.currentTarget.style.background = '#33ee33'}
                 onMouseOut={(e) => e.currentTarget.style.background = '#44ff44'}
               >
-                START AUTOPILOT
+                START LANE SENSE
               </button>
             </div>
           </div>
