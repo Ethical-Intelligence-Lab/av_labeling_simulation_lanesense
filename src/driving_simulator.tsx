@@ -1562,7 +1562,11 @@ const DrivingSimulator = () => {
               <h1 style={{ fontSize: '32px', marginBottom: '12px', color: '#ffd700' }}>
                 🚗 AEON {labelCondition} Simulation 🚗
               </h1>
-              <p style={{ marginBottom: '10px' }}>
+              <p style={{ marginBottom: '20px' }}>
+                <strong>Important:</strong> Your goal is to reach the Finish Line and read all smartphone notifications safely. <br></br>Your car will start in <strong style={{ textDecoration: 'underline' }}>{labelCondition}</strong> mode 
+
+              </p>
+              {/* <p style={{ marginBottom: '10px' }}>
                 This is a driving simulation. Your goal is to reach the Finish Line and read all smartphone notifications safely.
               </p>
               <p style={{ marginBottom: '10px' }}>
@@ -1578,7 +1582,7 @@ const DrivingSimulator = () => {
               <p style={{ marginBottom: '10px' }}> <strong>Important: after the simulation we will ask you questions about what you read in the notifications, so read each notification carefully so that you can remember what it says.</strong></p>
               <p style={{ marginBottom: '15px' }}>
                 To read a notification, click the icon, read the message, then close the message.
-              </p>
+              </p> */}
               
               <button
                 onClick={startGame}
