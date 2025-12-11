@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/av_labeling_simulation_lanesense/static/css/main.fdbcbbd2.css",
+    "main.js": "/av_labeling_simulation_lanesense/static/js/main.d74ebef3.js",
+    "index.html": "/av_labeling_simulation_lanesense/index.html",
+    "main.fdbcbbd2.css.map": "/av_labeling_simulation_lanesense/static/css/main.fdbcbbd2.css.map",
+    "main.d74ebef3.js.map": "/av_labeling_simulation_lanesense/static/js/main.d74ebef3.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.fdbcbbd2.css",
+    "static/js/main.d74ebef3.js"
+  ]
+}
