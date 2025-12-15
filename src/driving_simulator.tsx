@@ -81,7 +81,7 @@ const DrivingSimulator = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [scale, setScale] = useState(1);
-  const [isAutopilot, setIsAutopilot] = useState(true);
+  const [isAutopilot, setIsAutopilot] = useState(false);
   const [autopilotPending, setAutopilotPending] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
@@ -129,8 +129,8 @@ const DrivingSimulator = () => {
   const startGame = () => {
     setShowInstructions(false);
     setCountdown(3);
-    setIsAutopilot(true);
-    autopilotRef.current = true;
+    setIsAutopilot(false);
+    autopilotRef.current = false;
     autopilotPendingRef.current = false;
     setAutopilotPending(false);
     progressRef.current = 0;
@@ -1563,7 +1563,7 @@ const DrivingSimulator = () => {
                 🚗 AEON {labelCondition} Simulation 🚗
               </h1>
               <p style={{ marginBottom: '20px' }}>
-                <strong>Important:</strong> Your goal is to reach the Finish Line and read all smartphone notifications safely. <br></br>Your car will start in <strong style={{ textDecoration: 'underline' }}>{labelCondition}</strong> mode 
+                <strong>Important:</strong> Your goal is to reach the Finish Line and read all smartphone notifications safely. <br></br>Your car will start in <strong style={{ textDecoration: 'underline' }}>Manual</strong> mode 
 
               </p>
               {/* <p style={{ marginBottom: '10px' }}>
@@ -1600,7 +1600,7 @@ const DrivingSimulator = () => {
                 onMouseOver={(e) => e.currentTarget.style.background = '#33ee33'}
                 onMouseOut={(e) => e.currentTarget.style.background = '#44ff44'}
               >
-                START LANE SENSE
+                START MANUAL MODE
               </button>
             </div>
           </div>
